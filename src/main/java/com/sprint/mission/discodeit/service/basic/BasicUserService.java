@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +40,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
   private final JwtRegistry jwtRegistry;
+  private final ApplicationEventPublisher eventPublisher;
 
 
   @Override
@@ -75,7 +78,9 @@ public class BasicUserService implements UserService {
       );
 
       binaryContentRepository.save(content);
-      binaryContentStorage.put(content.getId(), bytes);
+
+      eventPublisher.publishEvent(new BinaryContentCreatedEvent(content.getId(), bytes));
+
       profileContent = content;
     }
 
@@ -180,7 +185,9 @@ public class BasicUserService implements UserService {
       );
 
       binaryContentRepository.save(newProfile);
-      binaryContentStorage.put(newProfile.getId(), bytes);
+
+      eventPublisher.publishEvent(new BinaryContentCreatedEvent(newProfile.getId(), bytes));
+
       currentProfile = newProfile;
 
       log.debug("새 프로필 파일 업로드 완료: userId={}, binaryContentId={}", id, newProfile.getId());
