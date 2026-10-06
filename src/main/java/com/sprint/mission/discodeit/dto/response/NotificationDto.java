@@ -3,12 +3,12 @@ package com.sprint.mission.discodeit.dto.response;
 import java.time.Instant;
 import java.util.UUID;
 
-public record ReadStatusDto(
+public record NotificationDto(
     UUID id,
-    UUID userId,
-    UUID channelId,
-    Instant lastReadAt,
-    boolean notificationEnabled
+    Instant createdAt,
+    UUID receiverId,
+    String title,
+    String content
 ) {
 
 }

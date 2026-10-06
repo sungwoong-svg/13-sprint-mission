@@ -118,7 +118,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
-  public ReadStatusDto updateLastReadAt(
+  public ReadStatusDto update(
       UUID readStatusId,
       ReadStatusUpdateRequest request
   ) {
@@ -133,7 +133,13 @@ public class BasicReadStatusService implements ReadStatusService {
           return new ReadStatusNotFoundException(readStatusId);
         });
 
-    readStatus.updateLastReadAt(request.newLastReadAt());
+    if (request.newLastReadAt() != null) {
+      readStatus.updateLastReadAt(request.newLastReadAt());
+    }
+
+    if (request.newNotificationEnabled() != null) {
+      readStatus.updateNotificationEnabled(request.newNotificationEnabled());
+    }
 
     log.info("읽음 상태 수정 완료: readStatusId={}", readStatusId);
 
