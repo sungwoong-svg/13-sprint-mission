@@ -22,6 +22,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.UUID;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,6 +33,7 @@ public class JwtTokenProvider {
 
   private static final JWSAlgorithm ALGORITHM = JWSAlgorithm.HS256;
 
+  private static final String USER_ID_CLAIM = "userId";
   private static final String ROLE_CLAIM = "role";
   private static final String TOKEN_TYPE_CLAIM = "tokenType";
 
@@ -111,6 +114,7 @@ public class JwtTokenProvider {
     JWTClaimsSet claims = new JWTClaimsSet.Builder()
         .subject(userDto.email())
         .issuer(properties.issuer())
+        .claim(USER_ID_CLAIM, userDto.id().toString())
         .claim(ROLE_CLAIM, userDto.role().name())
         .claim(TOKEN_TYPE_CLAIM, tokenType)
         .issueTime(Date.from(now))
@@ -167,6 +171,7 @@ public class JwtTokenProvider {
                 JWTClaimNames.SUBJECT,
                 JWTClaimNames.ISSUED_AT,
                 JWTClaimNames.EXPIRATION_TIME,
+                USER_ID_CLAIM,
                 ROLE_CLAIM,
                 TOKEN_TYPE_CLAIM
             )
@@ -174,5 +179,39 @@ public class JwtTokenProvider {
     );
 
     return processor;
+  }
+
+  public UUID getUserId(String token) {
+    try {
+      String userId = SignedJWT.parse(token)
+          .getJWTClaimsSet()
+          .getStringClaim(USER_ID_CLAIM);
+
+      return UUID.fromString(userId);
+    } catch (ParseException | IllegalArgumentException e) {
+      throw new IllegalArgumentException("JWT에서 사용자 ID를 읽을 수 없습니다.", e);
+    }
+  }
+
+  public ResponseCookie createRefreshTokenCookie(String refreshToken) {
+    return ResponseCookie
+        .from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .maxAge(properties.refreshTokenExpiration())
+        .sameSite("Lax")
+        .build();
+  }
+
+  public ResponseCookie createRefreshTokenDeleteCookie() {
+    return ResponseCookie
+        .from(REFRESH_TOKEN_COOKIE_NAME, "")
+        .httpOnly(true)
+        .secure(false)
+        .path("/")
+        .maxAge(0)
+        .sameSite("Lax")
+        .build();
   }
 }

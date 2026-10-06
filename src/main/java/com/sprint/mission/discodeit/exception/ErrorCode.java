@@ -24,6 +24,9 @@ public enum ErrorCode {
   READ_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "RS001", "읽음 상태를 찾을 수 없습니다."),
   READ_STATUS_ALREADY_EXISTS(HttpStatus.CONFLICT, "RS002", "이미 읽음 상태가 존재합니다."),
 
+  // Auth
+  INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 Refresh Token입니다."),
+
   // BinaryContent
   BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "B001", "바이너리 콘텐츠를 찾을 수 없습니다."),
   BINARY_CONTENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "B002", "파일 업로드 중 오류가 발생했습니다."),
