@@ -17,6 +17,9 @@ logging:
     com.sprint.mission.discodeit: info
 
 discodeit:
+  jwt:
+    secret: ${JWT_SECRET}
+
   storage:
     type: s3
 

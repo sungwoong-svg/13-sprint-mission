@@ -20,6 +20,9 @@ logging:
     org.springframework.security: trace
 
 discodeit:
+  jwt:
+    secret: discodeit-jwt-secret-key-for-local-dev
+
   storage:
     type: local
 

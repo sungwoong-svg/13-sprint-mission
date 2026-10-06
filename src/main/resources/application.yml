@@ -55,3 +55,9 @@ info:
     multipart:
       max-file-size: ${spring.servlet.multipart.max-file-size:10MB}
       max-request-size: ${spring.servlet.multipart.max-request-size:10MB}
+
+discodeit:
+  jwt:
+    issuer: discodeit
+    access-token-expiration: 30m
+    refresh-token-expiration: 14d
