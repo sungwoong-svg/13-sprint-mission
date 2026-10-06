@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.response.JwtDto;
+import com.sprint.mission.discodeit.dto.response.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,12 +31,14 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-    String accessToken = jwtTokenProvider.createAccessToken(userDetails.getUserDto());
+    UserDto userDto = userDetails.getUserDto().withOnline(true);
 
-    String refreshToken = jwtTokenProvider.createRefreshToken(userDetails.getUserDto());
+    String accessToken = jwtTokenProvider.createAccessToken(userDto);
+
+    String refreshToken = jwtTokenProvider.createRefreshToken(userDto);
 
     jwtRegistry.registerJwtInformation(
-        new JwtInformation(userDetails.getUserDto(), accessToken, refreshToken)
+        new JwtInformation(userDto, accessToken, refreshToken)
     );
 
     ResponseCookie refreshCookie = jwtTokenProvider.createRefreshTokenCookie(refreshToken);
@@ -45,7 +48,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     );
 
     JwtDto jwtDto = new JwtDto(
-        userDetails.getUserDto(), accessToken
+        userDto, accessToken
     );
 
     response.setStatus(HttpServletResponse.SC_OK);

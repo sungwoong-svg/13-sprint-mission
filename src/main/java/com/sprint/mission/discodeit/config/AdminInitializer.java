@@ -27,7 +27,7 @@ public class AdminInitializer implements CommandLineRunner {
     User admin = new User(
         adminProperties.username(),
         adminProperties.email(),
-        adminProperties.password(),
+        passwordEncoder.encode(adminProperties.password()),
         null,
         Role.ADMIN
     );

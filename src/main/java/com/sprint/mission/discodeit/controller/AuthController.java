@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -68,16 +67,8 @@ public class AuthController {
       ) String refreshToken, HttpServletResponse response
   ) {
     if (refreshToken == null
-        || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
-
-      throw new InvalidRefreshTokenException();
-    }
-
-    if (!jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-
-      UUID userId = jwtTokenProvider.getUserId(refreshToken);
-
-      jwtRegistry.invalidateJwtInformationByUserId(userId);
+        || !jwtTokenProvider.validateRefreshToken(refreshToken)
+        || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
 
       throw new InvalidRefreshTokenException();
     }
