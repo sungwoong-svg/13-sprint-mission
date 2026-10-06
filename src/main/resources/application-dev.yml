@@ -33,3 +33,4 @@ discodeit:
 
     local:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:./storage}
+      artificial-delay-ms: 3000
