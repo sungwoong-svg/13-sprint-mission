@@ -26,6 +26,7 @@ public enum ErrorCode {
 
   // Auth
   INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A001", "유효하지 않은 Refresh Token입니다."),
+  AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "A002", "인증에 실패했습니다."),
 
   // BinaryContent
   BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "B001", "바이너리 콘텐츠를 찾을 수 없습니다."),
