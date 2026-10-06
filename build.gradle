@@ -45,6 +45,9 @@ dependencies {
     // S3Client로 업로드/삭제, S3Presigner로 Presigned URL 생성
     implementation platform('software.amazon.awssdk:bom:2.46.7')
     implementation 'software.amazon.awssdk:s3'
+
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
 }
 
 jacoco {
