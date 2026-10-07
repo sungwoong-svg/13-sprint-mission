@@ -12,8 +12,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +22,6 @@ public class NotificationRequiredEventListener {
   private final ReadStatusRepository readStatusRepository;
   private final NotificationService notificationService;
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(MessageCreatedEvent event) {
 
     Message message = messageRepository
@@ -68,7 +65,6 @@ public class NotificationRequiredEventListener {
     log.info("메세지 알림 생성 완료: messageId={}, notificationCount={}", event.messageId(), count);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handler(RoleUpdatedEvent event) {
 
     String title = "권한 변경";
