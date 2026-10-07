@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.response.BinaryContentDto;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentDeleteException;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentDownloadException;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
@@ -11,7 +12,9 @@ import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
@@ -39,6 +42,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   private final S3Client s3Client;
   private final S3Presigner s3Presigner;
   private final S3Properties properties;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Retryable(
@@ -79,6 +83,12 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
   @Recover
   public UUID recover(BinaryContentUploadException e, UUID id, byte[] bytes) {
+    String requestId = MDC.get("requestId");
+
+    eventPublisher.publishEvent(
+        new S3UploadFailedEvent(id, "S3_UPLOAD", requestId, e.getMessage())
+    );
+
     log.error("S3 파일 업로드 최종 실패: binaryContentId={}", id, e);
 
     throw e;

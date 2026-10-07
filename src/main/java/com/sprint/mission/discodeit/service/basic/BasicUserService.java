@@ -7,18 +7,16 @@ import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.JwtRegistry;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
+  private final BinaryContentService binaryContentService;
   private final BinaryContentRepository binaryContentRepository;
   private final UserMapper userMapper;
   private final BinaryContentStorage binaryContentStorage;
@@ -63,30 +62,15 @@ public class BasicUserService implements UserService {
     }
 
     BinaryContent profileContent = null;
+
     if (profile != null && !profile.isEmpty()) {
-      log.debug("프로필 파일 업로드 시작: fileName={}, size={}",
-          profile.getOriginalFilename(), profile.getSize());
-
-      byte[] bytes;
-
-      try {
-        bytes = profile.getBytes();
-      } catch (IOException e) {
-        log.error("프로필 파일 읽기 실패: fileName={}", profile.getOriginalFilename(), e);
-        throw new BinaryContentUploadException(profile.getOriginalFilename(), e);
-      }
-
-      BinaryContent content = new BinaryContent(
+      log.debug(
+          "프로필 파일 업로드 시작: fileName={}, size={}",
           profile.getOriginalFilename(),
-          profile.getSize(),
-          profile.getContentType()
+          profile.getSize()
       );
 
-      binaryContentRepository.save(content);
-
-      eventPublisher.publishEvent(new BinaryContentCreatedEvent(content.getId(), bytes));
-
-      profileContent = content;
+      profileContent = binaryContentService.create(profile);
     }
 
     String encodedPassword = passwordEncoder.encode(request.password());
@@ -170,43 +154,39 @@ public class BasicUserService implements UserService {
     BinaryContent currentProfile = user.getProfile();
 
     if (profile != null && !profile.isEmpty()) {
-      if (currentProfile != null) {
-        log.debug("기존 프로필 정보 삭제: binaryContentId={}", currentProfile.getId());
 
+      if (currentProfile != null) {
         UUID currentProfileId = currentProfile.getId();
+
+        log.debug(
+            "기존 프로필 정보 삭제: binaryContentId={}",
+            currentProfileId
+        );
 
         binaryContentStorage.delete(currentProfileId);
         binaryContentRepository.deleteById(currentProfileId);
       }
 
-      byte[] bytes;
+      currentProfile = binaryContentService.create(profile);
 
-      try {
-        bytes = profile.getBytes();
-      } catch (IOException e) {
-        log.error("프로필 파일 읽기 실패: userId={}, fileName={}", id, profile.getOriginalFilename(), e);
-        throw new BinaryContentUploadException(profile.getOriginalFilename(), e);
-      }
-
-      BinaryContent newProfile = new BinaryContent(
-          profile.getOriginalFilename(),
-          profile.getSize(),
-          profile.getContentType()
+      log.debug(
+          "새 프로필 파일 업로드 요청 완료: userId={}, binaryContentId={}",
+          id,
+          currentProfile.getId()
       );
-
-      binaryContentRepository.save(newProfile);
-
-      eventPublisher.publishEvent(new BinaryContentCreatedEvent(newProfile.getId(), bytes));
-
-      currentProfile = newProfile;
-
-      log.debug("새 프로필 파일 업로드 완료: userId={}, binaryContentId={}", id, newProfile.getId());
     }
 
     String encodedPassword =
-        request.newPassword() != null ? passwordEncoder.encode(request.newPassword()) : null;
+        request.newPassword() != null
+            ? passwordEncoder.encode(request.newPassword())
+            : null;
 
-    user.update(request.newUsername(), request.newEmail(), encodedPassword, currentProfile);
+    user.update(
+        request.newUsername(),
+        request.newEmail(),
+        encodedPassword,
+        currentProfile
+    );
 
     log.info("사용자 수정 완료: userId={}", id);
 

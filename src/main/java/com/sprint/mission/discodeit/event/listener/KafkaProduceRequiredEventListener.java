@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -19,17 +22,27 @@ public class KafkaProduceRequiredEventListener {
   private final KafkaTemplate<String, String> kafkaTemplate;
   private final ObjectMapper objectMapper;
 
+  @Async("eventTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(MessageCreatedEvent event) {
     publish(
-        "discodeit.message.created", event.messageId().toString(), event
+        "discodeit.MessageCreatedEvent", event.messageId().toString(), event
     );
   }
 
+  @Async("eventTaskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(RoleUpdatedEvent event) {
     publish(
-        "discodeit.role.updated", event.userId().toString(), event
+        "discodeit.RoleUpdatedEvent", event.userId().toString(), event
+    );
+  }
+
+  @Async("eventTaskExecutor")
+  @EventListener
+  public void handle(S3UploadFailedEvent event) {
+    publish(
+        "discodeit.S3UploadFailedEvent", event.binaryContentId().toString(), event
     );
   }
 

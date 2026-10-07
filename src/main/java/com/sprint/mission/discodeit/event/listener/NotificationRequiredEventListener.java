@@ -2,10 +2,14 @@ package com.sprint.mission.discodeit.event.listener;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +24,7 @@ public class NotificationRequiredEventListener {
 
   private final MessageRepository messageRepository;
   private final ReadStatusRepository readStatusRepository;
+  private final UserRepository userRepository;
   private final NotificationService notificationService;
 
   public void handle(MessageCreatedEvent event) {
@@ -65,7 +70,7 @@ public class NotificationRequiredEventListener {
     log.info("메세지 알림 생성 완료: messageId={}, notificationCount={}", event.messageId(), count);
   }
 
-  public void handler(RoleUpdatedEvent event) {
+  public void handle(RoleUpdatedEvent event) {
 
     String title = "권한 변경";
 
@@ -81,4 +86,26 @@ public class NotificationRequiredEventListener {
         event.newRole());
   }
 
+  public void handle(S3UploadFailedEvent event) {
+
+    String title = "S3 업로드 실패";
+
+    String content = String.format(
+        "작업: %s, Request ID: %s, 오류: %s",
+        event.operation(),
+        event.requestId(),
+        event.errorMessage()
+    );
+
+    List<User> admins = userRepository.findByRole(Role.ADMIN);
+
+    for (User admin : admins) {
+      notificationService.create(admin.getId(), title, content);
+    }
+
+    log.error(
+        "S3 업로드 실패 관리자 알림 생성 완료: binaryContentId={}, adminCount={}",
+        event.binaryContentId(),
+        admins.size());
+  }
 }

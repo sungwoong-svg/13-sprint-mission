@@ -14,17 +14,16 @@ public class AsyncConfig {
 
   private final ContextPropagatingTaskDecorator taskDecorator;
 
-  @Bean(name = "taskExecutor")
-  public ThreadPoolTaskExecutor taskExecutor() {
-
+  @Bean(name = "eventTaskExecutor")
+  public ThreadPoolTaskExecutor eventTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
     executor.setCorePoolSize(2);
     executor.setMaxPoolSize(4);
     executor.setQueueCapacity(100);
-    executor.setThreadNamePrefix("discodeit-async-");
+    executor.setThreadNamePrefix("event-");
 
     executor.setTaskDecorator(taskDecorator);
-
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
 
     executor.setWaitForTasksToCompleteOnShutdown(true);
@@ -35,4 +34,23 @@ public class AsyncConfig {
     return executor;
   }
 
+  @Bean(name = "uploadTaskExecutor")
+  public ThreadPoolTaskExecutor uploadTaskExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+
+    executor.setCorePoolSize(2);
+    executor.setMaxPoolSize(4);
+    executor.setQueueCapacity(100);
+    executor.setThreadNamePrefix("upload-");
+
+    executor.setTaskDecorator(taskDecorator);
+    executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+
+    executor.setWaitForTasksToCompleteOnShutdown(true);
+    executor.setAwaitTerminationSeconds(30);
+
+    executor.initialize();
+
+    return executor;
+  }
 }
