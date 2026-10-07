@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
 
   @Override
+  @CacheEvict(cacheNames = "userChannels", allEntries = true)
   public ReadStatusDto create(ReadStatusCreateRequest request) {
     log.debug(
         "읽음 상태 생성 시작: userId={}, channelId={}",
@@ -147,6 +149,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
+  @CacheEvict(cacheNames = "userChannels", allEntries = true)
   public void delete(UUID readStatusId) {
     log.debug("읽음 상태 삭제 시작: readStatusId={}", readStatusId);
 

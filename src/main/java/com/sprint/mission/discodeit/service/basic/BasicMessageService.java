@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +55,7 @@ public class BasicMessageService implements MessageService {
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
+  @CacheEvict(cacheNames = "userChannels", allEntries = true)
   public MessageDto create(
       MessageCreateRequest request,
       List<MultipartFile> attachments
@@ -242,6 +244,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
+  @CacheEvict(cacheNames = "userChannels", allEntries = true)
   public void delete(UUID messageId) {
     log.debug("메시지 삭제 시작: messageId={}", messageId);
 
