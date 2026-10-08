@@ -56,7 +56,7 @@ public class BasicMessageService implements MessageService {
 
   @Timed("message.create.async")
   @Override
-  @CacheEvict(cacheNames = "userChannels", allEntries = true)
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public MessageDto create(
       MessageCreateRequest request,
       List<MultipartFile> attachments
@@ -223,7 +223,7 @@ public class BasicMessageService implements MessageService {
   }
 
   @Override
-  @CacheEvict(cacheNames = "userChannels", allEntries = true)
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public void delete(UUID messageId) {
     log.debug("메시지 삭제 시작: messageId={}", messageId);
 

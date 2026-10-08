@@ -124,7 +124,7 @@ public class BasicUserService implements UserService {
   @Override
   @Caching(evict = {
       @CacheEvict(cacheNames = "users", allEntries = true),
-      @CacheEvict(cacheNames = "userChannels", allEntries = true)
+      @CacheEvict(cacheNames = "channels", allEntries = true)
   })
   public UserDto update(UUID id, UserUpdateRequest request, MultipartFile profile) {
     log.debug("사용자 수정 시작: userId={}, hasProfile={}", id, profile != null && !profile.isEmpty());
@@ -196,7 +196,7 @@ public class BasicUserService implements UserService {
   @Override
   @Caching(evict = {
       @CacheEvict(cacheNames = "users", allEntries = true),
-      @CacheEvict(cacheNames = "userChannels", allEntries = true)
+      @CacheEvict(cacheNames = "channels", allEntries = true)
   })
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: userId={}", userId);
@@ -225,7 +225,7 @@ public class BasicUserService implements UserService {
   @Override
   @Caching(evict = {
       @CacheEvict(cacheNames = "users", allEntries = true),
-      @CacheEvict(cacheNames = "userChannels", allEntries = true)
+      @CacheEvict(cacheNames = "channels", allEntries = true)
   })
   public UserDto updateRole(UserRoleUpdateRequest request) {
 

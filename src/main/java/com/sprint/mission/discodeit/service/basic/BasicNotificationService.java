@@ -32,7 +32,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Override
-  @CacheEvict(cacheNames = "userNotifications", key = "#receiverId")
+  @CacheEvict(cacheNames = "notifications", key = "#receiverId")
   public NotificationDto create(UUID receiverId, String title, String content) {
     log.debug("알림 생성 시작: receiverId={}", receiverId);
 
@@ -50,7 +50,7 @@ public class BasicNotificationService implements NotificationService {
 
   @Transactional(readOnly = true)
   @Override
-  @Cacheable(cacheNames = "userNotifications", key = "#receiverId")
+  @Cacheable(cacheNames = "notifications", key = "#receiverId")
   public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
     log.debug("사용자별 알림 조회 시작: receiverId={}", receiverId);
 
@@ -66,7 +66,7 @@ public class BasicNotificationService implements NotificationService {
   }
 
   @Override
-  @CacheEvict(cacheNames = "userNotifications", key = "#requesterId")
+  @CacheEvict(cacheNames = "notifications", key = "#requesterId")
   public void delete(UUID notificationId, UUID requesterId) {
     log.debug("알림 삭제 시작: notificationId={}, requesterId={}", notificationId, requesterId);
 

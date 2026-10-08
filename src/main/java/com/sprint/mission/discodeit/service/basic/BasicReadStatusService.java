@@ -36,7 +36,7 @@ public class BasicReadStatusService implements ReadStatusService {
 
 
   @Override
-  @CacheEvict(cacheNames = "userChannels", allEntries = true)
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public ReadStatusDto create(ReadStatusCreateRequest request) {
     log.debug(
         "읽음 상태 생성 시작: userId={}, channelId={}",
@@ -149,7 +149,7 @@ public class BasicReadStatusService implements ReadStatusService {
   }
 
   @Override
-  @CacheEvict(cacheNames = "userChannels", allEntries = true)
+  @CacheEvict(cacheNames = "channels", allEntries = true)
   public void delete(UUID readStatusId) {
     log.debug("읽음 상태 삭제 시작: readStatusId={}", readStatusId);
 
