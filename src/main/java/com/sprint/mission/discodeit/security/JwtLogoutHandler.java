@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ public class JwtLogoutHandler implements LogoutHandler {
   private final JwtTokenProvider jwtTokenProvider;
   private final JwtRegistry jwtRegistry;
 
+  @CacheEvict(cacheNames = "users", allEntries = true)
   @Override
   public void logout(
       HttpServletRequest request,

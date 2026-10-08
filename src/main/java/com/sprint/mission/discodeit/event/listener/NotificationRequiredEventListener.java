@@ -72,18 +72,22 @@ public class NotificationRequiredEventListener {
 
   public void handle(RoleUpdatedEvent event) {
 
-    String title = "권한 변경";
+    String title = "권한이 변경되었습니다.";
 
     String content = String.format(
-        "권한이 %s에서 %s(으)로 변경되었습니다.",
+        "%s -> %s",
         event.oldRole(),
         event.newRole()
     );
 
     notificationService.create(event.userId(), title, content);
 
-    log.info("권한 변경 알림 생성 완료: userId={}, title={}, content={}", event.userId(), event.oldRole(),
-        event.newRole());
+    log.info(
+        "권한 변경 알림 생성 완료: userId={}, oldRole={}, newRole={}",
+        event.userId(),
+        event.oldRole(),
+        event.newRole()
+    );
   }
 
   public void handle(S3UploadFailedEvent event) {
